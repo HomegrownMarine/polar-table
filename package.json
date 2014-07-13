@@ -1,0 +1,28 @@
+{
+    "name": "polar-table",
+    "description": "Interpolate target speeds and angles from polar data",
+    "version": "0.0.1",
+    "homepage": "http://homegrownmarine.com",
+    "keywords": [
+        "performance",
+        "sailing",
+        "targets",
+        "polars"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/HomegrownMarine/polar-table.git"
+    },
+    "bugs": "https://github.com/HomegrownMarine/polar-table/issues",
+    "licenses": [{
+        "type": "mit",
+        "url": "https://github.com/HomegrownMarine/polar-table/blob/master/LICENSE.md"
+    }],
+    "dependencies": {
+        "lodash": "^2.4.1"
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "chai": "*"
+    }
+}
