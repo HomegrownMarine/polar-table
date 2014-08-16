@@ -7,17 +7,17 @@
 
 (function() {
     "use strict";
-    
+
     var init = function(exports, _) {
-        function polarTable() {
-            this.all = {};
-            this.targets = {
+        function PolarTable(allData, targets) {
+            this.all = allData || {};
+            this.targets = targets || {
                 'up': {},
                 'down': {}
             };
         }
 
-        polarTable.prototype.getInterpolatedValue = function(tws, key, upwind) {
+        PolarTable.prototype.getInterpolatedValue = function(tws, key, upwind) {
             var appropriateTargets = this.targets[upwind ? 'up' : 'down'];
             var twspeeds = _.keys(appropriateTargets);
 
@@ -33,22 +33,22 @@
             var percentFirst = 1 - (tws - found[0]) / (found[1] - found[0]);
             var interpolatedValue = percentFirst * appropriateTargets[found[0]][key] + (1 - percentFirst) * appropriateTargets[found[1]][key];
             return interpolatedValue;
-        }
+        };
 
-        polarTable.prototype.targetSpeed = function(tws, upwind) {
+        PolarTable.prototype.targetSpeed = function(tws, upwind) {
             return this.getInterpolatedValue(tws, 'speed', upwind);
-        }
+        };
 
-        polarTable.prototype.targetAngle = function(tws, upwind) {
+        PolarTable.prototype.targetAngle = function(tws, upwind) {
             return this.getInterpolatedValue(tws, 'twa', upwind);
-        }
+        };
 
-        polarTable.prototype.targetHeel = function(tws, upwind) {
+        PolarTable.prototype.targetHeel = function(tws, upwind) {
             return this.getInterpolatedValue(tws, 'heel', upwind);
-        }
+        };
 
-        exports.polarTable = polarTable;
-        return polarTable;
+        exports.PolarTable = PolarTable;
+        return PolarTable;
     };
 
     var localExports;
@@ -65,10 +65,10 @@
     if (typeof _ != 'undefined') {
         local_ = _;
     } else if (typeof require != 'undefined') {
-        local_ = require('lodash')
+        local_ = require('lodash');
     }
 
-    var polarTable = init(localExports, local_);
+    var PolarTable = init(localExports, local_);
 
     // if require exists, assume we're running in node
     // and add filesystem based factory
@@ -77,9 +77,9 @@
         var readline = require('readline');
 
         //creates polarTable from filename
-        polarTable.fromTSV = function(filename, callback) {
+        PolarTable.fromTSV = function(filename, callback) {
 
-            var polars = new polarTable();
+            var polars = new PolarTable();
 
             var rd = readline.createInterface({
                 input: fs.createReadStream(filename),
@@ -135,6 +135,6 @@
             rd.on('close', function() {
                 callback(polars);
             });
-        }
+        };
     }
 })();

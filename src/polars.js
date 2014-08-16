@@ -9,9 +9,9 @@
     "use strict";
 
     var init = function(exports, _) {
-        function PolarTable() {
-            this.all = {};
-            this.targets = {
+        function PolarTable(allData, targets) {
+            this.all = allData || {};
+            this.targets = targets || {
                 'up': {},
                 'down': {}
             };
