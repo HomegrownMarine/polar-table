@@ -15,37 +15,50 @@
                 'up': {},
                 'down': {}
             };
+
+            this.init();
         }
+
+        PolarTable.prototype.init = function() {
+            this.twsspeeds = {};
+            this.twsspeeds.up = _.keys(this.targets.up);
+            this.twsspeeds.down = _.keys(this.targets.down);
+        };
 
         PolarTable.prototype.getInterpolatedValue = function(tws, key, upwind) {
             var appropriateTargets = this.targets[upwind ? 'up' : 'down'];
-            var twspeeds = _.keys(appropriateTargets);
+            var twspeeds = this.twsspeeds[upwind ? 'up' : 'down'];
 
             var found = [0, 0];
-            for (var i = 1; i < twspeeds.length; i++) {
-                if (tws < twspeeds[i]) {
-                    found[1] = twspeeds[i];
-                    found[0] = twspeeds[i - 1];
-                    break;
-                }
-            }
+            var i = _.sortedIndex(twspeeds, tws+.001) || 1;
+            found[1] = twspeeds[i];
+            found[0] = twspeeds[i - 1];
 
             var percentFirst = 1 - (tws - found[0]) / (found[1] - found[0]);
             var interpolatedValue = percentFirst * appropriateTargets[found[0]][key] + (1 - percentFirst) * appropriateTargets[found[1]][key];
             return interpolatedValue;
         };
 
-        PolarTable.prototype.targetSpeed = function(tws, upwind) {
-            return this.getInterpolatedValue(tws, 'speed', upwind);
-        };
 
-        PolarTable.prototype.targetAngle = function(tws, upwind) {
-            return this.getInterpolatedValue(tws, 'twa', upwind);
-        };
+        var cachedLookup = function(dimension) {
+            var cache = {
+                'up': {},
+                'down': {}
+            };
 
-        PolarTable.prototype.targetHeel = function(tws, upwind) {
-            return this.getInterpolatedValue(tws, 'heel', upwind);
-        };
+            return function(tws, upwind) {
+                var twshunds = Math.round(tws * 100);
+                var valueCache = cache[upwind ? 'up' : 'down'];
+                if ( !(twshunds in valueCache) ) {
+                    valueCache[twshunds] = this.getInterpolatedValue(tws, dimension, upwind);
+                }
+                return valueCache[twshunds];
+            };
+        }
+        
+        PolarTable.prototype.targetSpeed = cachedLookup('speed');
+        PolarTable.prototype.targetAngle = cachedLookup('twa');
+        PolarTable.prototype.targetHeel = cachedLookup('heel');
 
         exports.PolarTable = PolarTable;
         return PolarTable;
@@ -133,6 +146,7 @@
             });
 
             rd.on('close', function() {
+                polars.init();
                 callback(polars);
             });
         };
