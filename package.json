@@ -1,7 +1,7 @@
 {
     "name": "homegrown-polars",
     "description": "Interpolate target speeds and angles from polar data",
-    "version": "0.0.3",
+    "version": "0.0.5",
     "main": "dist/polars.js",
     "homepage": "http://homegrownmarine.com",
     "keywords": [
