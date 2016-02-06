@@ -8,6 +8,8 @@
 (function() {
     "use strict";
 
+    var interpolator = require('./interpolate.js');
+
     var init = function(exports, _) {
         function PolarTable(allData, targets) {
             this.all = allData || {};
@@ -20,23 +22,22 @@
         }
 
         PolarTable.prototype.init = function() {
-            this.twsspeeds = {};
-            this.twsspeeds.up = _.keys(this.targets.up);
-            this.twsspeeds.down = _.keys(this.targets.down);
+            var interpolators = {};
+            var prettyTargets = this.targets;
+
+            _.each(['up','down'], function(mode) {
+                interpolators[mode] = {};
+
+                _.each(['twa', 'speed', 'heel'], function(metric) {
+                    interpolators[mode][metric] = interpolator(_.map(prettyTargets[mode], function(v,k) { return [parseInt(k),v[metric]]; }));
+                });
+            });
+
+            this.interpolators = interpolators;
         };
 
         PolarTable.prototype.getInterpolatedValue = function(tws, key, upwind) {
-            var appropriateTargets = this.targets[upwind ? 'up' : 'down'];
-            var twspeeds = this.twsspeeds[upwind ? 'up' : 'down'];
-
-            var found = [0, 0];
-            var i = _.sortedIndex(twspeeds, tws+.001) || 1;
-            found[1] = twspeeds[i];
-            found[0] = twspeeds[i - 1];
-
-            var percentFirst = 1 - (tws - found[0]) / (found[1] - found[0]);
-            var interpolatedValue = percentFirst * appropriateTargets[found[0]][key] + (1 - percentFirst) * appropriateTargets[found[1]][key];
-            return interpolatedValue;
+            return this.interpolators[upwind?'up':'down'][key](tws);
         };
 
 
@@ -54,7 +55,7 @@
                 }
                 return valueCache[twshunds];
             };
-        }
+        };
         
         PolarTable.prototype.targetSpeed = cachedLookup('speed');
         PolarTable.prototype.targetAngle = cachedLookup('twa');

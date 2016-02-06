@@ -20,7 +20,7 @@
         "url": "https://github.com/HomegrownMarine/polar-table/blob/master/LICENSE.md"
     }],
     "dependencies": {
-        "lodash": "^2.4.1"
+        "lodash": "^4.2.1"
     },
     "devDependencies": {
         "mocha": "*",
